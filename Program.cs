@@ -28,23 +28,28 @@
                         {
                             bool isNumberAlreadyUsed = true;
                             bool isNumberInValidRange = false;
-                            bool isGridPositionAlreadyFilled = true;
                             
                             (string unparsedNumberEntered, string unparsedGridPosition) = UI.GetPlayerInput(grid, numberOfRows, numberOfColumns, $"Player{player}");
                             
-                            (int enteredRowPosition, int enteredColumnPosition, isGridPositionAlreadyFilled) = Logic.ParseGridPositions(unparsedGridPosition, numberOfRows, numberOfColumns, filledGridPositions);
-                            if(isGridPositionAlreadyFilled)
+                            var (enteredRowPosition, enteredColumnPosition, error) = Logic.ValidateAndParseGridPosition(unparsedGridPosition, numberOfRows, numberOfColumns, filledGridPositions);
+                            if (error.HasValue)
                             {
-                                UI.PrintGridPositionUsedAlreadyError();
-                                continue;
-                            }
-                            if (enteredRowPosition == -1 || enteredColumnPosition == -1)
-                            {
-                                UI.PrintIncorrectDimensionsEnteredError();
+                                switch(error.Value)
+                                {
+                                    case GridPositionError.AlreadyFilled:
+                                        UI.PrintGridPositionUsedAlreadyError();
+                                        break;
+                                    case GridPositionError.OutOfBounds:
+                                        UI.PrintIncorrectDimensionsEnteredError();
+                                        break;
+                                    case GridPositionError.InvalidFormat:
+                                        UI.PrintIncorrectDimensionsEnteredError();
+                                        break;
+                                }
                                 continue;
                             }
                             
-                            (numberEntered, isNumberAlreadyUsed, isNumberInValidRange) = Logic.ParseNumberEntered(unparsedNumberEntered, usedNumbersList);
+                            (numberEntered, isNumberAlreadyUsed, isNumberInValidRange) = Logic.ValidateAndParseNumberEntered(unparsedNumberEntered, usedNumbersList);
                             if (numberEntered == -1)
                             {
                                 UI.PrintIncorrectIntError();
@@ -68,10 +73,7 @@
                         }//End Of Inside while loop
                         
                         //Check if game is over
-                        bool gridRowWin = Logic.IsGridRowWin(numberOfRows, numberOfColumns, targetNumber, grid);
-                        bool gridColumnWin = Logic.IsGridColumnWin(numberOfRows, numberOfColumns, targetNumber, grid);
-                        bool gridDiagonalWin = Logic.IsDiagonalWin(numberOfRows, targetNumber, grid);
-                        result = gridRowWin || gridColumnWin || gridDiagonalWin;
+                        result = Logic.HasPlayerWon(numberOfRows, numberOfColumns, targetNumber, grid);
                         
                         if (result)
                         {

@@ -157,7 +157,7 @@ public class UI
         string response = Console.ReadLine().ToLower();
         if (response == "n")
         {
-            Console.WriteLine("Thanks for playing Hangman!");
+            Console.WriteLine("Thanks for playing FifteenWins Game!");
             Console.Clear();
             return false;
         }

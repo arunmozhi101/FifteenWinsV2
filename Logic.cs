@@ -2,7 +2,7 @@ namespace FifteenWinsV2;
 
 public class Logic
 {
-    public static (int enteredRowPosition, int enteredColumnPosition, bool isGridPositionAlreadyFilled) ParseGridPositions(string unparsedGridPosition, int  numberOfRows, int numberOfColumns, List<string> filledGridPositions)
+    public static (int? enteredRowPosition, int? enteredColumnPosition, GridPositionError? error) ValidateAndParseGridPosition(string unparsedGridPosition, int  numberOfRows, int numberOfColumns, List<string> filledGridPositions)
     {
         string[] splitGridPosition = unparsedGridPosition.Split(Constants.delimiters,StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries | StringSplitOptions.None);
 
@@ -14,19 +14,23 @@ public class Logic
                 {
                     if (!filledGridPositions.Contains($"{enteredRowPosition}{enteredColumnPosition}"))
                     {
-                        return (enteredRowPosition, enteredColumnPosition, isGridPositionAlreadyFilled: false);
+                        return (enteredRowPosition, enteredColumnPosition, null);
                     }
                     else
                     {
-                        return (enteredRowPosition: -1, enteredColumnPosition: -1, isGridPositionAlreadyFilled: true);
+                        return (enteredRowPosition: -1, enteredColumnPosition: -1, GridPositionError.AlreadyFilled);
                     }
+                }
+                else
+                {
+                    return (enteredRowPosition: -1, enteredColumnPosition: -1, GridPositionError.OutOfBounds);
                 }
             }
         }
-        return (enteredRowPosition: -1, enteredColumnPosition: -1, isGridPositionAlreadyFilled: false);
+        return (enteredRowPosition: -1, enteredColumnPosition: -1, GridPositionError.InvalidFormat);
     }
     
-    public static (int numberEntered, bool isNumberAlreadyUsed, bool isNumberInValidRange) ParseNumberEntered(string unparsedNumberEntered, List<int> usedNumbersList)
+    public static (int numberEntered, bool isNumberAlreadyUsed, bool isNumberInValidRange) ValidateAndParseNumberEntered(string unparsedNumberEntered, List<int> usedNumbersList)
     {
         bool isNumberAlreadyUsed = true;
         bool isNumberInValidRange = false;
@@ -55,7 +59,7 @@ public class Logic
         }
     }
     
-        public static bool IsGridRowWin(int numberOfRows, int numberOfColumns, int targetNumber, int[,] grid)
+    private static bool IsGridRowWin(int numberOfRows, int numberOfColumns, int targetNumber, int[,] grid)
     {
         //Check if the Grid rows add up to the target value
         for (int i = 0; i < numberOfRows; i++)
@@ -84,7 +88,7 @@ public class Logic
         return false;
     }
 
-    public static bool IsGridColumnWin(int numberOfRows, int numberOfColumns, int targetNumber, int[,] grid)
+    private static bool IsGridColumnWin(int numberOfRows, int numberOfColumns, int targetNumber, int[,] grid)
     {
         //Check if the Grid Columns add up to the target value
         for (int j = 0; j < numberOfColumns; j++)
@@ -114,7 +118,7 @@ public class Logic
         return false;
     }
 
-    public static bool IsDiagonalWin(int numberOfRows, int targetNumber, int[,] grid)
+    private static bool IsDiagonalWin(int numberOfRows, int targetNumber, int[,] grid)
     {
         //Diagonal Check
         int backwardDiagonalSum = 0;
@@ -124,12 +128,24 @@ public class Logic
             if (grid[i, i] != 0)
             {
                 backwardDiagonalSum += grid[i, i];
-                forwardDiagonalSum += grid[i, (numberOfRows - 1) - i];
             }
             else
             {
                 // None of the values in the diagonal can be a 0
                 backwardDiagonalSum = 0;
+                break;
+            }
+        }
+        
+        for (int i = 0; i < numberOfRows; i++)
+        {
+            if (grid[i, (numberOfRows - 1) - i] != 0)
+            {
+                forwardDiagonalSum += grid[i, (numberOfRows - 1) - i];
+            }
+            else
+            {
+                // None of the values in the diagonal can be a 0
                 forwardDiagonalSum = 0;
                 break;
             }
@@ -141,5 +157,12 @@ public class Logic
         }
 
         return false;
+    }
+    
+    public static bool HasPlayerWon(int numberOfRows, int numberOfColumns, int targetNumber, int[,] grid)
+    {
+        return IsGridRowWin(numberOfRows, numberOfColumns, targetNumber, grid) ||
+               IsGridColumnWin(numberOfRows, numberOfColumns, targetNumber, grid) ||
+               IsDiagonalWin(numberOfRows, targetNumber, grid);
     }
 }
