@@ -12,17 +12,14 @@
                 UI.WelcomeMessage();
                 string unparsedGridDimensions = UI.GetGridDimensions();
                 (int numberOfRows, int numberOfColumns, var gridDimensionsError) = Logic.ValidateAndParseGridDimensions(unparsedGridDimensions);
-                if (gridDimensionsError.HasValue)
+                if (gridDimensionsError.HasValue && gridDimensionsError.Value == GridDimensionsError.InvalidFormat)
                 {
-                    if (gridDimensionsError.Value == GridDimensionsError.InvalidFormat)
-                    {
-                        UI.PrintIncorrectDimensionsEnteredError();
-                        continue;
-                    }
+                    UI.PrintIncorrectDimensionsEnteredError();
+                    continue;
                 }
                 
-                int numberOfPlayersPlaying = UI.GetNumberOfPlayers();
                 int targetNumber = UI.GetTargetNumber();
+                int numberOfPlayersPlaying = UI.GetNumberOfPlayers();
                 
                 int numberEntered;
                 bool result = true;
