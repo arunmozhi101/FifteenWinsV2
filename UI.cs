@@ -7,15 +7,70 @@ public class UI
         Console.WriteLine("Welcome to FifteenWins Version2 Game!");
         Console.Clear();
     }
-    public static (int numberOfRows, int numberOfColumns) GetGridDimensions()
+    public static string GetGridDimensions()
     {
-        return (numberOfRows: 3, numberOfColumns: 3);
+        string unparsedGridDimension;
+        
+        Console.WriteLine("Do you want to play FifteenWins using a 3x3 grid? (Y/N) : ");
+        string response = Console.ReadLine().ToLower();
+        if (response == "y")
+        {
+            Console.WriteLine("Okay then, we play with a 3x3 grid.");
+            Console.Clear();
+            return "3,3";
+        }
+
+        while (true)
+        {
+            Console.WriteLine($"Please enter the grid dimension in either of these 2 formats -> rows x columns or rows, columns : ");
+            unparsedGridDimension = Console.ReadLine();
+
+            if (unparsedGridDimension is not null)
+            {
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Error: Incorrect grid dimension. Please try again.");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadLine();
+                Console.Clear();
+            }
+        }
+        return unparsedGridDimension;
     }
     
     public static int GetTargetNumber()
     {
         int targetNumber = 15;
-        return targetNumber;
+        
+        Console.WriteLine("Do you want to play FifteenWins with Target Number as 15? (Y/N) : ");
+        string response = Console.ReadLine().ToLower();
+        if (response == "y")
+        {
+            Console.WriteLine("Okay then, we play with Target Number as 15.");
+            Console.Clear();
+            return targetNumber;
+        }
+        while (true)
+        {
+            Console.WriteLine($"Please enter the Target Number : ");
+            string unparsedTargetNumber = Console.ReadLine();
+
+            if (int.TryParse(unparsedTargetNumber, out targetNumber))
+            {
+                Console.WriteLine($"Okay then, we play with Target Number as {targetNumber}).");
+                Console.Clear();
+                return targetNumber;
+            }
+            else
+            {
+                Console.WriteLine("Error: Incorrect grid dimension. Please try again.");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadLine();
+                Console.Clear();
+            }
+        }
     }
     
     public static int GetNumberOfPlayers()
@@ -88,7 +143,7 @@ public class UI
         {
             DisplayGrid(grid, numberOfRows, numberOfColumns);
             Console.Write($"{playerName}'s turn : ");
-            Console.WriteLine($"Please enter a number between 0 and 9 : ");
+            Console.WriteLine($"Please enter a number between 1 and 9 : ");
             unparsedNumberEntered = Console.ReadLine();
             Console.WriteLine($"Please enter the position in either of these 2 formats -> rows x columns or rows, columns : ");
             unparsedGridPosition = Console.ReadLine();

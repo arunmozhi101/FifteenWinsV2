@@ -8,8 +8,19 @@
             {
                 List<int> usedNumbersList = new List<int>();
                 List<string> filledGridPositions = new List<string>();
-
-                (int numberOfRows, int numberOfColumns) = UI.GetGridDimensions();
+                
+                UI.WelcomeMessage();
+                string unparsedGridDimensions = UI.GetGridDimensions();
+                (int numberOfRows, int numberOfColumns, var gridDimensionsError) = Logic.ValidateAndParseGridDimensions(unparsedGridDimensions);
+                if (gridDimensionsError.HasValue)
+                {
+                    if (gridDimensionsError.Value == GridDimensionsError.InvalidFormat)
+                    {
+                        UI.PrintIncorrectDimensionsEnteredError();
+                        continue;
+                    }
+                }
+                
                 int numberOfPlayersPlaying = UI.GetNumberOfPlayers();
                 int targetNumber = UI.GetTargetNumber();
                 
@@ -31,10 +42,10 @@
                             
                             (string unparsedNumberEntered, string unparsedGridPosition) = UI.GetPlayerInput(grid, numberOfRows, numberOfColumns, $"Player{player}");
                             
-                            var (enteredRowPosition, enteredColumnPosition, error) = Logic.ValidateAndParseGridPosition(unparsedGridPosition, numberOfRows, numberOfColumns, filledGridPositions);
-                            if (error.HasValue)
+                            (int enteredRowPosition, int enteredColumnPosition, var gridPositionError) = Logic.ValidateAndParseGridPosition(unparsedGridPosition, numberOfRows, numberOfColumns, filledGridPositions);
+                            if (gridPositionError.HasValue)
                             {
-                                switch(error.Value)
+                                switch(gridPositionError.Value)
                                 {
                                     case GridPositionError.AlreadyFilled:
                                         UI.PrintGridPositionUsedAlreadyError();

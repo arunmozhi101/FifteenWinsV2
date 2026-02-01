@@ -2,7 +2,23 @@ namespace FifteenWinsV2;
 
 public class Logic
 {
-    public static (int? enteredRowPosition, int? enteredColumnPosition, GridPositionError? error) ValidateAndParseGridPosition(string unparsedGridPosition, int  numberOfRows, int numberOfColumns, List<string> filledGridPositions)
+    public static (int numberOfRows, int numberOfColumns, GridDimensionsError? error) ValidateAndParseGridDimensions(string unparsedGridDimensions)
+    {
+        string[] splitGridDimensions = unparsedGridDimensions.Split(Constants.delimiters,StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries | StringSplitOptions.None);
+
+        if (splitGridDimensions.Length == Constants.TWO_DIMENSION)
+        {
+            if (int.TryParse(splitGridDimensions[0], out int numberOfRows) && int.TryParse(splitGridDimensions[1], out int numberOfColumns))
+            {
+                if (numberOfRows >= 3 && numberOfRows <= 9 && numberOfColumns >= 3 && numberOfColumns <= 9)
+                {
+                    return (numberOfRows: numberOfRows, numberOfColumns: numberOfColumns, null);
+                }
+            }
+        }
+        return (numberOfRows: Constants.INVALID_DIMENSION, numberOfColumns: Constants.INVALID_DIMENSION, GridDimensionsError.InvalidFormat);
+    }
+    public static (int enteredRowPosition, int enteredColumnPosition, GridPositionError? error) ValidateAndParseGridPosition(string unparsedGridPosition, int  numberOfRows, int numberOfColumns, List<string> filledGridPositions)
     {
         string[] splitGridPosition = unparsedGridPosition.Split(Constants.delimiters,StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries | StringSplitOptions.None);
 
@@ -18,16 +34,16 @@ public class Logic
                     }
                     else
                     {
-                        return (enteredRowPosition: -1, enteredColumnPosition: -1, GridPositionError.AlreadyFilled);
+                        return (enteredRowPosition: Constants.INVALID_POSITION, enteredColumnPosition: Constants.INVALID_POSITION, GridPositionError.AlreadyFilled);
                     }
                 }
                 else
                 {
-                    return (enteredRowPosition: -1, enteredColumnPosition: -1, GridPositionError.OutOfBounds);
+                    return (enteredRowPosition: Constants.INVALID_POSITION, enteredColumnPosition: Constants.INVALID_POSITION, GridPositionError.OutOfBounds);
                 }
             }
         }
-        return (enteredRowPosition: -1, enteredColumnPosition: -1, GridPositionError.InvalidFormat);
+        return (enteredRowPosition: Constants.INVALID_POSITION, enteredColumnPosition: Constants.INVALID_POSITION, GridPositionError.InvalidFormat);
     }
     
     public static (int numberEntered, bool isNumberAlreadyUsed, bool isNumberInValidRange) ValidateAndParseNumberEntered(string unparsedNumberEntered, List<int> usedNumbersList)
@@ -41,13 +57,13 @@ public class Logic
             //Check if the number is already entered. If not then fill the usedNumbersList[].
             if (usedNumbersList.Contains(numberEntered))
             {
-                return (numberEntered: -1, isNumberAlreadyUsed: true,  isNumberInValidRange: true);
+                return (numberEntered: Constants.INVALID_NUMBER, isNumberAlreadyUsed: true,  isNumberInValidRange: true);
             }
             else
             {
                 if (numberEntered < 1 | numberEntered > 9)
                 {
-                    return (numberEntered: -1, isNumberAlreadyUsed: false,  isNumberInValidRange: false);
+                    return (numberEntered: Constants.INVALID_NUMBER, isNumberAlreadyUsed: false,  isNumberInValidRange: false);
                 }
 
                 return (numberEntered, isNumberAlreadyUsed: false, isNumberInValidRange: true);
@@ -55,7 +71,7 @@ public class Logic
         }
         else
         {
-            return (numberEntered: -1, isNumberAlreadyUsed: isNumberAlreadyUsed,  isNumberInValidRange: isNumberInValidRange);
+            return (numberEntered: Constants.INVALID_NUMBER, isNumberAlreadyUsed: isNumberAlreadyUsed,  isNumberInValidRange: isNumberInValidRange);
         }
     }
     
